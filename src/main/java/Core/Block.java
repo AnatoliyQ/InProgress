@@ -2,13 +2,14 @@ package Core;
 
 import Util.StringUtil;
 
+import java.io.Serializable;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Date;
 
 import static Util.StringUtil.applySha256;
 
-public class Block {
+public class Block implements Serializable {
     public String hash;
     public String previousHash;
     public String merkleRoot;

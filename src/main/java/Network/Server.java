@@ -1,6 +1,10 @@
 package Network;
 
+import Core.Block;
+import Util.StringUtil;
+
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -39,6 +43,17 @@ public class Server {
         serverThread.start();
     }
 
+    public void stop() throws IOException{
+        runningServer = false;
+        try {
+            serverThread.interrupt();
+            socket.close();
+        } catch (NullPointerException n) {
+            n.printStackTrace();
+        }
+        System.out.println("Server Stopped");
+    }
+
 
     public void listen() throws IOException, SocketTimeoutException{
         System.out.println("Server starting...");
@@ -46,7 +61,7 @@ public class Server {
         System.out.println("Server started on port " + this.port);
 
         Peer peer;
-        server.setSoTimeout(100);
+        server.setSoTimeout(10000);
         while(runningServer){
             try{
                 socket = server.accept();
@@ -57,6 +72,14 @@ public class Server {
                 System.out.println("New peer: " + peer.toString());
             } catch (SocketTimeoutException e) {
                 //e.printStackTrace();
+            }
+
+                ObjectInputStream deserializer = new ObjectInputStream(socket.getInputStream());
+            try {
+                Block tets = (Block) deserializer.readObject();
+                System.out.println(StringUtil.getJson(tets));
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
 
 

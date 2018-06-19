@@ -27,9 +27,11 @@ public class TestRunner {
 
         newServer.start();
 
-        Socket socket = new Socket("localhost", 12345);
+        //Socket socket = new Socket("localhost", 12345);
 
-        Peer p = new Peer(socket);
+        Peer p = new Peer("localhost", 12345);
+        Block b = new Block("testSend");
+        p.sendBlock(b);
 
     }
 }
