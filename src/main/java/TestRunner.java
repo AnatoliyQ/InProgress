@@ -2,6 +2,7 @@ import Core.*;
 import Network.Peer;
 import Network.Server;
 import Util.StringUtil;
+import com.sun.xml.internal.stream.util.ThreadLocalBufferAllocator;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class TestRunner {
 //
 //
 //        //System.out.println(myWallet.getBalance());
+        // _______________________________
 
         Server newServer = new Server(12345);
 
@@ -30,10 +32,16 @@ public class TestRunner {
         Socket socket = new Socket("localhost", 12345);
 
         Peer p = new Peer(socket);
-        Thread.sleep(1000);
-        newServer.stop();
-        //Block b = new Block("testSend");
-        //p.sendBlock(b);
+//        Thread.sleep(5000);
+//        Peer p2 = new Peer(socket);
+//        Wallet w = new Wallet();
+//        Transaction tx =new Transaction(w.publicKey, 100L);
+//        Thread.sleep(5000);
+//        newServer.psBroadcast(tx);
+
+
+
+
 
     }
 }

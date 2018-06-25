@@ -37,15 +37,13 @@ public class Server {
         this.port = port;
         connected = new ArrayList<>();
         peers = new ArrayList<>();
-        serverThread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    listen();
+        serverThread = new Thread(() -> {
+            try {
+                listen();
 
-                    System.out.println("Connection Ended");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                System.out.println("Connection Ended");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
 
@@ -63,9 +61,9 @@ public class Server {
     public void stop() throws IOException {
         runningServer = false;
         try {
-            serverThread.interrupt();
             outputStream.close();
             inputStream.close();
+            serverThread.interrupt();
             server.close();
             socket.close();
         } catch (NullPointerException n) {
@@ -105,9 +103,7 @@ public class Server {
                             inPacks++;
                             System.out.println("Server reciev ping " + inPacks);
                         }
-                        if (inPacks == 2) {
-                            psBroadcast();
-                        }
+
 
                     }
                 });
@@ -154,11 +150,11 @@ public class Server {
         this.timer.start();
     }
 
-    public void psBroadcast() {
+    public void psBroadcast(Object object) {
         for (int i = 0; i < connected.size(); i++) {
             ObjectOutputStream ob = connected.get(i);
             try {
-                ob.writeObject(new Test());
+                ob.writeObject(object);
                 ob.flush();
             } catch (IOException e) {
                 e.printStackTrace();

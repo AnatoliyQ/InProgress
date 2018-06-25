@@ -13,11 +13,30 @@ public class Miner implements Runnable {
 
     private boolean shouldMine = false;
 
+    private static Miner instance;
+
     public Miner(Block block, PublicKey minerKey, ArrayList<Transaction> uncTx, int difficulty){
         this.block = block;
         this.minerKey = minerKey;
         this.uncTx = uncTx;
         this.difficulty = difficulty;
+    }
+
+    private Miner(){
+
+    }
+
+    public static Miner getInstance(){
+        if(instance == null){
+            instance = new Miner();
+        }
+
+        return instance;
+    }
+
+    public void setMiner(PublicKey minerKey){
+        this.minerKey = minerKey;
+
     }
 
     public Block startMiner() {

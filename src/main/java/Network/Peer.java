@@ -1,5 +1,6 @@
 package Network;
 
+import Core.Transaction;
 import Network.Commands.Ping;
 import Network.Commands.Test;
 import com.sun.org.apache.xpath.internal.SourceTree;
@@ -48,6 +49,8 @@ public class Peer {
                     out.flush();
                 } else if(command instanceof Test){
                     System.out.println("Test passed from client");
+                } else if (command instanceof Transaction){
+                    System.out.println("TX received by client");
                 }
 
             } catch (SocketTimeoutException | ClassNotFoundException e) {
