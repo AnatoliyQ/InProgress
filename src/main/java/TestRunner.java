@@ -30,6 +30,8 @@ public class TestRunner {
         Socket socket = new Socket("localhost", 12345);
 
         Peer p = new Peer(socket);
+        Thread.sleep(1000);
+        newServer.stop();
         //Block b = new Block("testSend");
         //p.sendBlock(b);
 

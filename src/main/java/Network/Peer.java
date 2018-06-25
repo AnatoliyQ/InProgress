@@ -1,6 +1,7 @@
 package Network;
 
 import Network.Commands.Ping;
+import Network.Commands.Test;
 import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.io.*;
@@ -16,14 +17,19 @@ public class Peer {
 
     public Peer(Socket socket)  {
         this.socket = socket;
-        peerThread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    listen();
-                    System.out.println( "Closing connection to " + socket.getInetAddress() + ":" + socket.getPort());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        try {
+            in = new ObjectInputStream(this.socket.getInputStream());
+            out = new ObjectOutputStream(this.socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        peerThread = new Thread(() -> {
+            try {
+                listen();
+                System.out.println( "Closing connection to " + socket.getInetAddress() + ":" + socket.getPort());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
         peerThread.start();
@@ -35,11 +41,13 @@ public class Peer {
         while(true){
             //System.out.println("Listening for commands");
             try{
-                ObjectInputStream in = new ObjectInputStream(this.socket.getInputStream());
-                ObjectOutputStream out = new ObjectOutputStream(this.socket.getOutputStream());
                 command = in.readObject();
                 if (command instanceof Ping){
                     System.out.println("Ping received");
+                    out.writeObject(new Ping());
+                    out.flush();
+                } else if(command instanceof Test){
+                    System.out.println("Test passed from client");
                 }
 
             } catch (SocketTimeoutException | ClassNotFoundException e) {

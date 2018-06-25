@@ -1,12 +1,11 @@
 package Network;
 
-import Core.Block;
+
 import Network.Commands.NetworkCommand;
 import Network.Commands.Ping;
+import Network.Commands.Test;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,17 +15,17 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Handler;
+
 
 public class Server {
     private final static int DELAY = 5000;
     private Timer timer;
     private int port;
     private ArrayList<Peer> peers;
-    private ArrayList<?> connected;
+    private ArrayList<ObjectOutputStream> connected;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
-    public     Thread serverThread;
+    public Thread serverThread;
     private boolean runningServer;
     private HashMap<String, NetworkCommand> commands = new HashMap<>();
     private ServerSocket server;
@@ -34,8 +33,9 @@ public class Server {
     private int inPacks = 0;
     private int outPacks = 0;
 
-    public Server(int port){
+    public Server(int port) {
         this.port = port;
+        connected = new ArrayList<>();
         peers = new ArrayList<>();
         serverThread = new Thread(new Runnable() {
             public void run() {
@@ -48,11 +48,11 @@ public class Server {
                 }
             }
         });
+
     }
 
-
-    public void start(){
-        if(serverThread.isAlive()){
+    public void start() {
+        if (serverThread.isAlive()) {
             System.out.println("Server is already running.");
             return;
         }
@@ -60,75 +60,114 @@ public class Server {
         serverThread.start();
     }
 
-    public void stop() throws IOException{
+    public void stop() throws IOException {
         runningServer = false;
         try {
             serverThread.interrupt();
+            outputStream.close();
+            inputStream.close();
+            server.close();
             socket.close();
         } catch (NullPointerException n) {
             System.out.println("Null pointer when closing server socket");
         }
-        System.out.println( "Server Stopped");
+        System.out.println("Server Stopped");
     }
 
     public void listen() throws IOException {
-        System.out.println( "Server starting...");
+        System.out.println("Server starting...");
         server = new ServerSocket(this.port);
-        System.out.println( "Server started on port " + this.port);
+        System.out.println("Server started on port " + this.port);
 
-        Peer peer;
-        server.setSoTimeout(10000);
-        Object obj;
-        while(runningServer){
-            try{
+        while (runningServer) {
+            try {
                 socket = server.accept();
+
+
                 outputStream = new ObjectOutputStream(socket.getOutputStream());
                 inputStream = new ObjectInputStream(socket.getInputStream());
+                connected.add(outputStream);
                 System.out.println("Passed Accept");
-                peer = new Peer(socket);
-                System.out.println( "Connection received from: " + peer.toString());
-                peers.add(peer);
-                System.out.println( "New peer: " + peer.toString());
-//                outputStream.writeObject(new Ping());
-//                outputStream.flush();
+                System.out.println("Connection received from: " + socket.toString());
 
-                this.timer = new Timer(DELAY, e -> {
-                    try {
-                        if (inPacks == outPacks) {
-                            outputStream.writeObject(new Ping());
-                            outPacks++;
-                            System.out.println(outPacks + " out");
-                        } else {
-                            socket.close();
-                            throw new SocketException();
+                pingSender();
+
+                Thread readThread = new Thread(() -> {
+                    while (runningServer) {
+                        Object obj = null;
+                        try {
+                            obj = inputStream.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            e.printStackTrace();
                         }
-                    } catch (SocketException ex1) {
-                        System.out.println("packages not clash");
 
-                        timer.stop();
-                    }  catch (IOException ex2) {
-                        ex2.printStackTrace();
+                        if (obj instanceof Ping) {
+                            inPacks++;
+                            System.out.println("Server reciev ping " + inPacks);
+                        }
+                        if (inPacks == 2) {
+                            psBroadcast();
+                        }
+
                     }
                 });
 
-                this.timer.start();
+                readThread.start();
 
 
-
-                //outputStream.writeObject(new Ping());
-                //this.outPacks++;
-                System.out.println(outPacks + " out");
-
-
-
-            } catch (SocketTimeoutException  e) {
+            } catch (SocketTimeoutException e) {
                 e.printStackTrace();
+                System.out.println("Exeptions block in server");
             }
 
 
         }
     }
 
+    private void pingSender() {
+        this.timer = new Timer(DELAY, e -> {
+            try {
+
+                if (Math.abs(inPacks - outPacks) <= 3) {
+                    outputStream.writeObject(new Ping());
+                    outPacks++;
+                    System.out.println(outPacks + " out");
+                } else {
+                    socket.close();
+                    throw new SocketException();
+                }
+            } catch (SocketException ex1) {
+                System.out.println("packages not clash");
+                timer.stop();
+                try {
+                    socket.close();
+                    outputStream.close();
+                    inputStream.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            } catch (IOException ex2) {
+                ex2.printStackTrace();
+            }
+        });
+
+        this.timer.start();
+    }
+
+    public void psBroadcast() {
+        for (int i = 0; i < connected.size(); i++) {
+            ObjectOutputStream ob = connected.get(i);
+            try {
+                ob.writeObject(new Test());
+                ob.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
 
+        }
+    }
 }
+
+
+
