@@ -1,6 +1,7 @@
 package DB;
 
 import Core.Account;
+import Core.Block;
 import Core.TransactionOutput;
 import Util.*;
 import org.mapdb.DB;
@@ -10,6 +11,10 @@ import org.mapdb.Serializer;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static DB.StorageMaps.ACCOUNT;
+import static DB.StorageMaps.TRANSACTIONOUTPUT;
 
 public class Storage {
     private static Storage instance;
@@ -17,16 +22,18 @@ public class Storage {
     private String pathDB = FileManagment.getInternalPath("db");
 
 
-    //private String pathTransactionsDB = pathDB + "/tx.db";
+
     private String pathAccountDB =  pathDB + "/account.db";
     private String pathTransactionOutputDB = pathDB + "/utxo.db";
+    private String pathBlockDB = pathDB + "/block.db";
 
     private DB accountDB;
-    private DB transactionsDB;
     private DB transactionOutputDB; // UTXO
+    private DB blockDB;
 
-    private List<Account> accauntMap;
+    private List<Account> accountMap;
     private HTreeMap<String, TransactionOutput> transactionOutputMap;
+    private List<Block> blockMap;
     //private HashMap<String, TransactionOutput> transactionOutputMap;
     //private HTreeMap<byte[], byte[]> transactionsMap;
 
@@ -35,28 +42,13 @@ public class Storage {
     protected Storage(){
 
         accountDB = getDB(pathAccountDB, false, true);
-        //transactionsDB =  getDB(pathTransactionsDB,false,true);
         transactionOutputDB = getDB(pathTransactionOutputDB, false, true);
+        blockDB = getDB(pathBlockDB, false, true);
 
-
-
-        //transactionsMap = transactionsDB.hashMap("map").keySerializer(Serializer.INTEGER).valueSerializer(Serializer.JAVA).createOrOpen();
-
-        //tx = (List<TransactionOutput>) transactionsDB.indexTreeList("MyList", Serializer.JAVA).createOrOpen();
-
-        //transactionsMap = (List<TransactionOutput>) transactionsDB.indexTreeList("test").serializer(Serializer.JAVA).createOrOpen();
-        //transactionsMap = (List<TransactionOutput>) transactionsDB.indexTreeList("map", Serializer.JAVA).createOrOpen();
-        accauntMap = (List<Account>) accountDB.indexTreeList("map", Serializer.JAVA).createOrOpen();
+        accountMap = (List<Account>) accountDB.indexTreeList("map", Serializer.JAVA).createOrOpen();
         transactionOutputMap = transactionOutputDB.hashMap("map").keySerializer(Serializer.STRING).valueSerializer(Serializer.JAVA).createOrOpen();
+        blockMap = (List<Block>) accountDB.indexTreeList("map", Serializer.JAVA).createOrOpen();
 
-
-
-
-
-
-        //accountMap = accountDB.hashMap("map").keySerializer(Serializer.BYTE_ARRAY).valueSerializer(Serializer.BYTE_ARRAY).createOrOpen();
-        //accountMap = accountDB.hashMap("map").keySerializer(SerializerJava.
-        //blocksMap = blocksDB.hashMap("mapBlock").keySerializer(Serializer.INTEGER).valueSerializer(Serializer.JAVA).createOrOpen();
     }
 
     public static Storage getInstance(){
@@ -81,83 +73,57 @@ public class Storage {
         return transactionsMap.get(i);
     }
 
-    public HashMap<String, TransactionOutput> getTxOut (){
-        HashMap<String, TransactionOutput> test = new HashMap<>();
-        test.putAll(transactionOutputMap);
-        return test;
-        //return transactionOutputMap;
+    public HashMap<String, TransactionOutput> getAllTxOut(){
+        HashMap<String, TransactionOutput> tempTXOU = new HashMap<>();
+        tempTXOU.putAll(transactionOutputMap);
+
+        return tempTXOU;
     }
 
     public void removeTXo (String transactionOutputId){
         transactionOutputMap.remove(transactionOutputId);
     }
 
-    public boolean put (TransactionOutput tx){
-        return transactionsMap.add(tx);
-    }
 
-    public boolean putToDB (StorageMaps map, Object objectKey, Object objectValue){
+    public void putToDB (StorageMaps map, Object objectKey, Object objectValue){
         if(map == StorageMaps.TRANSACTIONOUTPUT){
             String key = (String)objectKey;
             TransactionOutput value = (TransactionOutput) objectValue;
             transactionOutputMap.put(key , value);
-            return true;
-        } else if(map == StorageMaps.ACCOUNT){
+        } else if(map == ACCOUNT){
             Account key = (Account)objectKey;
-            accauntMap.add(key);
+            accountMap.add(key);
+        } else if (map == StorageMaps.BLOCKS){
+            Block block = (Block) objectKey;
+            blockMap.add(block);
         }
-        return false;
     }
 
-    public void addAccount(Account acc){
-        accauntMap.add(acc);
+
+    public Object getFromDB(StorageMaps map){
+        if(map == ACCOUNT) {
+            if (accountMap.size() == 0) {
+                return null;
+            }
+            return accountMap.get(0);
+        }else if( map == TRANSACTIONOUTPUT){
+            HashMap<String, TransactionOutput> tempTXOU = new HashMap<>();
+            tempTXOU.putAll(transactionOutputMap);
+            return tempTXOU;
+        }
+
+        return null ;
     }
 
-    public Account getAccount (){
-        if(accauntMap.size() == 0){
-            return null;
-        }
-        return accauntMap.get(0);
-    }
 
-    /*
-    public DB put(StorageMaps map, byte[] key, byte[] value){
-        if(map == StorageMaps.ACCOUNTS){
-            accountsMap.put(key, value);
-            return accountsDB;
-        }else if(map == StorageMaps.BLOCKS){
-            blocksMap.put(key,value);
-            return blocksDB;
-        }else if(map == StorageMaps.TRANSACTIONS){
-            transactionsMap.put(key,value);
-            return transactionsDB;
-        }else if(map == StorageMaps.CONTRACT_CODE){
-            contractCodeMap.put(key,value);
-            return contractCodeDB;
-        }else if(map == StorageMaps.CONTRACT_STATE){
-            contractStatesMap.put(key,value);
-            return contractStatesDB;
-        }
-        else return null;
-    }*/
 
-    /*
-    public byte[] get(StorageMaps map, byte[] key){
-        if(map == StorageMaps.ACCOUNTS){
-            return accountsMap.get(key);
-        }else if(map == StorageMaps.BLOCKS){
-            return blocksMap.get(key);
-        }else if(map == StorageMaps.TRANSACTIONS){
-            return transactionsMap.get(key);
-        }else if(map == StorageMaps.CONTRACT_CODE){
-            return contractCodeMap.get(key);
-        }else if(map == StorageMaps.CONTRACT_STATE){
-            return contractStatesMap.get(key);
-        }
-        return null;
-    }*/
+
 
     public static void main(String[] args) throws AddressFormatException {
+
+
+
+
 
     }
 

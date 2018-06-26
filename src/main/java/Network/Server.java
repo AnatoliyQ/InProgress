@@ -1,9 +1,8 @@
 package Network;
 
 
-import Network.Commands.NetworkCommand;
 import Network.Commands.Ping;
-import Network.Commands.Test;
+
 
 import javax.swing.*;
 import java.io.IOException;
@@ -27,7 +26,7 @@ public class Server {
     private ObjectInputStream inputStream;
     public Thread serverThread;
     private boolean runningServer;
-    private HashMap<String, NetworkCommand> commands = new HashMap<>();
+
     private ServerSocket server;
     private Socket socket = null;
     private int inPacks = 0;

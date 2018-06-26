@@ -8,14 +8,11 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class Transaction implements Serializable{
-    public String transactionId; //Contains a hash of transaction*
-    public PublicKey sender; //Senders address/public key.
-    public PublicKey reciepient; //Recipients address/public key.
-    public float value; //Contains the amount we wish to send to the recipient.
-    public byte[] signature; //This is to prevent anybody else from spending funds in our wallet.
-
-    public String addressSender;
-    public String addressReciepient;
+    private   String transactionId; //Contains a hash of transaction*
+    private PublicKey sender; //Senders address/public key.
+    private PublicKey reciepient; //Recipients address/public key.
+    private float value; //Contains the amount we wish to send to the recipient.
+    private byte[] signature; //This is to prevent anybody else from spending funds in our wallet.
 
 
     public ArrayList<TransactionInput> inputs = new ArrayList<>();
@@ -38,6 +35,7 @@ public class Transaction implements Serializable{
         TransactionOutput txOut = new TransactionOutput(reciepient, value, "CoinBaseTransaction");
         this.outputs.add(txOut);
         this.signature = StringUtil.stringToByteArray("CoinBase");
+        this.transactionId = StringUtil.applySha256(reciepient + Float.toString(value) + StringUtil.getJson(txOut));
 
 
     }
@@ -87,6 +85,18 @@ public class Transaction implements Serializable{
                         StringUtil.getStringFromKey(reciepient) +
                         Float.toString(value) + sequence
         );
+    }
+
+    public String getTransactionId (){
+        return transactionId;
+    }
+
+    public PublicKey getAddressSender(){
+        return sender;
+    }
+
+    public PublicKey getReciepient(){
+        return reciepient;
     }
 
     public static void main(String[] args) {

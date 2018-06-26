@@ -1,7 +1,10 @@
 package Core;
 
+import Network.Node;
+
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Miner implements Runnable {
 
@@ -39,16 +42,24 @@ public class Miner implements Runnable {
 
     }
 
-    public Block startMiner() {
+//    public Block startMiner() {
+//        minerThread = new Thread(this);
+//        minerThread.start();
+//        return block;
+//    }
+
+    public void startMiner (){
+        uncTx = Node.getInstance().getAllTransactions();
+
+
         minerThread = new Thread(this);
         minerThread.start();
-        return block;
     }
 
 
     @Override
     public void run() {
-//        try{
+
         block.addCoinbaseTx(25L, minerKey);
         block.addUnconfTx(uncTx);
             while (!shouldMine && !minerThread.isInterrupted()) {
@@ -59,9 +70,7 @@ public class Miner implements Runnable {
                 }
             }
 
-//        } catch (InterruptedException e){
-//            System.out.println("Thread is interrupted");
-//        }
+
 
 
     }

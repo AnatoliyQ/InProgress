@@ -10,12 +10,13 @@ import java.util.Date;
 import static Util.StringUtil.applySha256;
 
 public class Block implements Serializable {
-    public String hash;
-    public String previousHash;
-    public String merkleRoot;
+    private int hight;
+    private String hash;
+    private String previousHash;
+    private String merkleRoot;
     private ArrayList<Transaction> transactions = new ArrayList<Transaction>();
-    public long timeStamp;
-    public int nonce;
+    private long timeStamp;
+    private int nonce;
     private Transaction coinbaseTx;
     private int coinbase = 25;
 
@@ -27,9 +28,10 @@ public class Block implements Serializable {
         this.hash = calculateHash();
     }
 
-    public String calculateHash() {
+    private String calculateHash() {
         String calculatedhash = applySha256(
-                previousHash +
+                Integer.toString(hight)+
+                        previousHash +
                         Long.toString(timeStamp) +
                         Integer.toString(nonce) +
                         merkleRoot
@@ -66,6 +68,22 @@ public class Block implements Serializable {
 
         System.out.println("Block Mined!!! : " + hash);
         return true;
+    }
+
+    public void setHash(String hash){
+        this.hash = hash;
+    }
+
+    public String getHash(){
+        return hash;
+    }
+
+    public int getHight(){
+        return hight;
+    }
+
+    public void setHight(int hight){
+        this.hight = hight;
     }
 
     public static void main(String[] args) {

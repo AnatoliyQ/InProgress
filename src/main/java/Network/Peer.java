@@ -2,8 +2,6 @@ package Network;
 
 import Core.Transaction;
 import Network.Commands.Ping;
-import Network.Commands.Test;
-import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.io.*;
 import java.net.Socket;
@@ -47,9 +45,7 @@ public class Peer {
                     System.out.println("Ping received");
                     out.writeObject(new Ping());
                     out.flush();
-                } else if(command instanceof Test){
-                    System.out.println("Test passed from client");
-                } else if (command instanceof Transaction){
+                }  else if (command instanceof Transaction){
                     System.out.println("TX received by client");
                 }
 

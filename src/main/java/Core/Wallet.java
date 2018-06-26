@@ -1,6 +1,7 @@
 package Core;
 
 import DB.Storage;
+import Network.Node;
 import Util.Address;
 
 
@@ -20,7 +21,7 @@ public class  Wallet {
 
     public Wallet() {
         setKeys();
-        this.UTXO = Storage.getInstance().getTxOut();
+        this.UTXO = Storage.getInstance().getAllTxOut();
 
     }
 
@@ -59,7 +60,7 @@ public class  Wallet {
 
         }
 
-
+        Node.getInstance().addTransactionToPool(newTransaction);
 
         return newTransaction;
     }
@@ -70,14 +71,13 @@ public class  Wallet {
     }
 
     private void setKeys(){
-        if(Storage.getInstance().getAccount() == null){
+        if(Storage.getInstance().getFromDB(ACCOUNT) == null){
             Account myAccount = new Account();
             Storage.getInstance().putToDB(ACCOUNT, myAccount, null);
-            Storage.getInstance().addAccount(myAccount);
             this.publicKey = myAccount.getPublicKey();
             this.privateKey = myAccount.getPrivateKey();
         } else {
-            Account myAccount = Storage.getInstance().getAccount();
+            Account myAccount = (Account) Storage.getInstance().getFromDB(ACCOUNT);
             this.publicKey = myAccount.getPublicKey();
             this.privateKey = myAccount.getPrivateKey();
         }
