@@ -102,7 +102,7 @@ public class Transaction implements Serializable{
     public static void main(String[] args) {
         Wallet test = new Wallet();
         //Transaction tx = new Transaction(null, test.publicKey, 20l, null);
-        Transaction tx = new Transaction(test.publicKey, 25l);
+        Transaction tx = new Transaction(test.getPublicKey(), 25l);
 
 
         System.out.println(StringUtil.getJson(tx));

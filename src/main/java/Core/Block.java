@@ -40,11 +40,8 @@ public class Block implements Serializable {
     }
 
 
-
-    public void addUnconfTx(ArrayList<Transaction> uncTx){
-        if(uncTx.size()==0) {
-            transactions.addAll(uncTx);
-        }
+    public void addUnconfTx (Transaction tx){
+        transactions.add(tx);
     }
 
     public ArrayList<Transaction> getTransactions() {
@@ -70,6 +67,10 @@ public class Block implements Serializable {
         return true;
     }
 
+    public void calculateMerkleRoot (){
+        merkleRoot = StringUtil.getMerkleRoot(transactions);
+    }
+
     public void setHash(String hash){
         this.hash = hash;
     }
@@ -86,8 +87,19 @@ public class Block implements Serializable {
         this.hight = hight;
     }
 
-    public static void main(String[] args) {
+    public static Block getGenesisBlock(){
+        Block genesisBlock = new Block("Starting blockchain");
+        genesisBlock.timeStamp = 1530045299L;
+        genesisBlock.setHight(0);
+        genesisBlock.hash = "fcd4b1ff9ae2e9230ddca60af6e0ee6a3625252b39bc01e0a3ceb45b2bcd28b6";
+        genesisBlock.coinbase = 0;
 
+        return genesisBlock;
+    }
+
+    public static void main(String[] args) {
+        Block test = Block.getGenesisBlock();
+        System.out.println(StringUtil.getJson(test));
     }
 
 }

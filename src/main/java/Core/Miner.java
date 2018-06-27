@@ -1,6 +1,7 @@
 package Core;
 
 import Network.Node;
+import Util.StringUtil;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class Miner implements Runnable {
 //    }
 
     public void startMiner (){
-        uncTx = Node.getInstance().getAllTransactions();
+//        uncTx = Node.getInstance().getAllTransactions();
 
 
         minerThread = new Thread(this);
@@ -59,24 +60,46 @@ public class Miner implements Runnable {
 
     @Override
     public void run() {
-
+        while (!shouldMine && !minerThread.isInterrupted()) {
         block.addCoinbaseTx(25L, minerKey);
-        block.addUnconfTx(uncTx);
-            while (!shouldMine && !minerThread.isInterrupted()) {
+        uncTx = Node.getInstance().getAllTransactions();
+        if (!(uncTx.size() ==0)) {
+            for (Transaction tx : uncTx) {
+                if(tx.processTransaction()){
+                    block.addUnconfTx(tx);
+                    uncTx.remove(tx);
+                } else {
+                    uncTx.remove(tx);
+                    System.out.println("Transaction is not valid !");
+                }
 
-                if (block.mineBlock(difficulty)) {
+            }
+        } else {
+            System.out.println("Start mining block " + block.getHight() + " with only coinbase transaction");
+        }
+
+
+
+            if (block.mineBlock(difficulty)) {
                     minerThread.interrupt();
                     shouldMine = false;
-                }
             }
+        }
 
 
 
 
     }
 
+
+
     public void stopMining(){
         minerThread.interrupt();
         shouldMine = false;
+    }
+
+    public static void main(String[] args) {
+
+
     }
 }

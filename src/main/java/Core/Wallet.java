@@ -13,8 +13,8 @@ import java.util.HashMap;
 import static DB.StorageMaps.*;
 
 public class  Wallet {
-    public PrivateKey privateKey;
-    public PublicKey publicKey;
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
 
     public HashMap<String,TransactionOutput> UTXO = new HashMap<>(); // key - transactionOutputId; Value - TransactionOutput
 
@@ -83,6 +83,14 @@ public class  Wallet {
         }
 
 
+    }
+
+    public PublicKey getPublicKey(){
+        return publicKey;
+    }
+
+    public PrivateKey getPrivateKey() {
+        return privateKey;
     }
 
 

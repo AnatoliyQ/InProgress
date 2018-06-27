@@ -9,7 +9,8 @@ import java.net.SocketTimeoutException;
 
 
 public class Peer {
-    private Thread peerThread;
+    private Thread peerThreadListen;
+    private Thread peerThreadWriter;
     public Socket socket;
     public ObjectOutputStream out;
     public ObjectInputStream in;
@@ -23,7 +24,7 @@ public class Peer {
             e.printStackTrace();
         }
 
-        peerThread = new Thread(() -> {
+        peerThreadListen = new Thread(() -> {
             try {
                 listen();
                 System.out.println( "Closing connection to " + socket.getInetAddress() + ":" + socket.getPort());
@@ -31,8 +32,22 @@ public class Peer {
                 e.printStackTrace();
             }
         });
-        peerThread.start();
+        peerThreadListen.start();
+
+        peerThreadWriter = new Thread(() -> {
+            try {
+                listen();
+                System.out.println( "Closing connection to " + socket.getInetAddress() + ":" + socket.getPort());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        peerThreadWriter.start();
+
+
     }
+
+
 
 
     public void listen() throws IOException {
