@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Node {
     private ConcurrentHashMap<String, Transaction> transactionPool;
-    private PublicKey minerKey;
+    public PublicKey minerKey;
     private static Node NODE;
     private Miner myMiner;
     private final Wallet myWallet;
@@ -90,8 +90,8 @@ public class Node {
     }
 
     private void connectPeer() throws IOException {
-//        String host = "123.78.96.784";
-        String host = "localhost";
+        String host = "123.78.96.784";
+//        String host = "localhost";
         int port = 12345;
         if (NetworkUtil.isReachableByPing(host)){
             Socket fSocket = new Socket(host, port);
@@ -105,8 +105,8 @@ public class Node {
 
     }
 
-    public void addBlock (Block block){
-
+    public void addMyTXout (TransactionOutput txOut){
+        myWallet.addTxOut(txOut);
     }
 
 

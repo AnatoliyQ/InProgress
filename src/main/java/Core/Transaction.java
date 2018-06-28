@@ -58,10 +58,16 @@ public class Transaction implements Serializable{
     }
 
     public float getInputsValue() {
+
         float total = 0;
-        for(TransactionInput i : inputs) {
-            if(i.UTXO == null) continue; //if Core.Transaction can't be found skip it, This behavior may not be optimal.
-            total += i.UTXO.getValue();
+        if(getType().equals("Coinbase")){
+            total = 25;
+        } else {
+            for (TransactionInput i : inputs) {
+                if (i.UTXO == null)
+                    continue; //if Core.Transaction can't be found skip it, This behavior may not be optimal.
+                total += i.UTXO.getValue();
+            }
         }
         return total;
     }

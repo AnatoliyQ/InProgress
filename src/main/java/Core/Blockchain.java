@@ -55,13 +55,25 @@ public class Blockchain {
     public void synchronizeBloks(){}
 
     public void addBlock(Block block){
-        Block blockInChain = null;
         if(BlockValitator.isValid(block)) {
            if(!chain.contains(block)){
+               checkIsTXforMe(block);
                chain.add(block);
                Storage.getInstance().putToDB(BLOCKS, block, null);
                Node.getInstance().myServer.psBroadcast(block);
            }
+        }
+    }
+
+    private void checkIsTXforMe (Block block){
+        ArrayList<Transaction> transactions = block.getTransactions();
+        for (Transaction tx: transactions) {
+            ArrayList<TransactionOutput> outputs = tx.outputs;
+            for (TransactionOutput txOut:outputs) {
+                if (txOut.isMine(Node.getInstance().minerKey)){
+                    Node.getInstance().addMyTXout(txOut);
+                }
+            }
         }
     }
 

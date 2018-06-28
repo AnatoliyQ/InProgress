@@ -16,7 +16,7 @@ public class  Wallet {
     private PrivateKey privateKey;
     private PublicKey publicKey;
 
-    public HashMap<String,TransactionOutput> UTXO = new HashMap<>(); // key - transactionOutputId; Value - TransactionOutput
+    private HashMap<String,TransactionOutput> UTXO = new HashMap<>(); // key - transactionOutputId; Value - TransactionOutput
 
 
     public Wallet() {
@@ -83,6 +83,10 @@ public class  Wallet {
         }
 
 
+    }
+
+    public void addTxOut (TransactionOutput txOut){
+        UTXO.put(txOut.id, txOut);
     }
 
     public PublicKey getPublicKey(){

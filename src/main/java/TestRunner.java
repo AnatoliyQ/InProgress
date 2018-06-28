@@ -40,6 +40,7 @@ public class TestRunner {
 //        Peer p = new Peer(socket);
 
         Node testNode = Node.getInstance();
+        testNode.startMining();
 //        Thread.sleep(5000);
 //        testNode.myServer.stop();
 

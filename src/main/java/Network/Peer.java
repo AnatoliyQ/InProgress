@@ -1,6 +1,7 @@
 package Network;
 
 import Core.Block;
+import Core.Blockchain;
 import Core.Transaction;
 import Network.Commands.Ping;
 
@@ -65,7 +66,7 @@ public class Peer {
                 } else if(command instanceof Block){
                     System.out.println("Blcok received");
                     Block block = (Block) command;
-                    Node.getInstance().addBlock(block);
+                    Blockchain.getBlockchain().addBlock(block);
                 }
 
             } catch (SocketTimeoutException | ClassNotFoundException e) {
