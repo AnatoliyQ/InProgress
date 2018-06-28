@@ -45,23 +45,12 @@ public class TestRunner {
 //        Wallet w = new Wallet();
 //        Transaction tx  = new Transaction(w.publicKey, 60L);
 //        testNode.addTransactionToPool(tx);
-
-        TransactionOutput txo = new TransactionOutput("Test", 10L, "test2");
-
-        Storage.getInstance().putToDB(TRANSACTIONOUTPUT, txo.id, txo);
-
-        HashMap<String, TransactionOutput> test = new HashMap<>();
-        test = (HashMap<String, TransactionOutput>) Storage.getInstance().getFromDB(TRANSACTIONOUTPUT);
-
-        System.out.println(test.size());
-
-        System.out.println(test.keySet());
-        System.out.println(StringUtil.getJson(test.get("78ff6e078cab6bae051ea2e87bc4bb2268669ce4855e04e6e7af3e16081ebcb3")));
-
-
-
-
-
+        Node node = Node.getInstance();
+        node.startMining();
+        Thread.sleep(4000);
+        node.stopMining();
+        Storage.getInstance().commitAll();
+        Storage.getInstance().closeAll();
 
 
 

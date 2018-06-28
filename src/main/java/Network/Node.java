@@ -37,8 +37,17 @@ public class Node {
         myWallet = new Wallet();
         minerKey = myWallet.getPublicKey();
         myMiner = Miner.getInstance();
+        myMiner.setMiner(minerKey);
         myServer = new Server(port);
         blockchain = Blockchain.getBlockchain();
+        peers = new ArrayList<>();
+        myServer.start();
+        try {
+            connectPeer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -46,15 +55,17 @@ public class Node {
         if(NODE ==null){
             NODE = new Node();
         }
-        NODE.myServer.start();
-        try {
-            NODE.connectPeer();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        NODE.myServer.start();
+//        try {
+//            NODE.connectPeer();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         return NODE;
     }
+
+
 
     public void addTransactionToPool(Transaction tx){
         transactionPool.put(tx.getTransactionId(), tx);
@@ -62,9 +73,13 @@ public class Node {
         System.out.println("Done");
     }
 
-    public void startMining (Boolean flag){
+    public void startMining (){
 
         myMiner.startMiner();
+    }
+
+    public void stopMining(){
+        myMiner.stopMining();
     }
 
     public ArrayList<Transaction> getAllTransactions (){
@@ -80,7 +95,7 @@ public class Node {
         int port = 12345;
         if (NetworkUtil.isReachableByPing(host)){
             Socket fSocket = new Socket(host, port);
-            Peer myPeer = new Peer(fSocket);
+            myPeer = new Peer(fSocket);
             peers.add(myPeer);
 
         } else {

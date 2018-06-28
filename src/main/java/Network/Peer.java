@@ -34,15 +34,15 @@ public class Peer {
         });
         peerThreadListen.start();
 
-        peerThreadWriter = new Thread(() -> {
-            try {
-                listen();
-                System.out.println( "Closing connection to " + socket.getInetAddress() + ":" + socket.getPort());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        peerThreadWriter.start();
+//        peerThreadWriter = new Thread(() -> {
+//            try {
+//
+//                System.out.println( "Closing connection to " + socket.getInetAddress() + ":" + socket.getPort());
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        });
+//        peerThreadWriter.start();
 
 
     }

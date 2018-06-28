@@ -7,6 +7,8 @@ import DB.StorageMaps;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static DB.StorageMaps.BLOCKS;
+
 public class Blockchain {
     private static Blockchain blockchain;
 
@@ -33,7 +35,7 @@ public class Blockchain {
 
     private void initializeChain(){
         ArrayList<Block> blockchain = new ArrayList<>();
-        blockchain.addAll((ArrayList<Block>)Storage.getInstance().getFromDB(StorageMaps.BLOCKS));
+        blockchain.addAll((ArrayList<Block>)Storage.getInstance().getFromDB(BLOCKS));
         if(blockchain.size()>0){
             chain = blockchain;
         } else {
@@ -47,8 +49,14 @@ public class Blockchain {
 
     }
 
+
     public void synchronizeBloks(){}
 
+    public void addBlock(Block block){
+        chain.add(block);
+        Storage.getInstance().putToDB(BLOCKS, block, null);
+
+    }
 
 
 }

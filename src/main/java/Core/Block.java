@@ -17,8 +17,7 @@ public class Block implements Serializable {
     private ArrayList<Transaction> transactions = new ArrayList<Transaction>();
     private long timeStamp;
     private int nonce;
-    private Transaction coinbaseTx;
-    private int coinbase = 25;
+    private int difficulty;
 
     public Block(String previousHash ) {
 
@@ -34,7 +33,8 @@ public class Block implements Serializable {
                         previousHash +
                         Long.toString(timeStamp) +
                         Integer.toString(nonce) +
-                        merkleRoot
+                        merkleRoot+
+                        Integer.toString(difficulty)
         );
         return calculatedhash;
     }
@@ -54,12 +54,12 @@ public class Block implements Serializable {
 
     }
 
-    public boolean mineBlock(int difficulty) {
+    public boolean mineBlock() {
         merkleRoot = StringUtil.getMerkleRoot(transactions);
         String target = StringUtil.getDificultyString(difficulty); //Create a string with difficulty * "0"
         while(!hash.substring( 0, difficulty).equals(target)) {
-            nonce ++;
-            hash = calculateHash();
+            this.nonce ++;
+            this.hash = calculateHash();
         }
 
 
@@ -87,15 +87,25 @@ public class Block implements Serializable {
         this.hight = hight;
     }
 
+    public void setDifficulty (int difficulty){
+        this.difficulty = difficulty;
+    }
+
+    public int getDifficulty(){
+        return difficulty;
+    }
+
     public static Block getGenesisBlock(){
         Block genesisBlock = new Block("Starting blockchain");
         genesisBlock.timeStamp = 1530045299L;
         genesisBlock.setHight(0);
         genesisBlock.hash = "fcd4b1ff9ae2e9230ddca60af6e0ee6a3625252b39bc01e0a3ceb45b2bcd28b6";
-        genesisBlock.coinbase = 0;
+        genesisBlock.difficulty = 1;
 
         return genesisBlock;
     }
+
+
 
     public static void main(String[] args) {
         Block test = Block.getGenesisBlock();

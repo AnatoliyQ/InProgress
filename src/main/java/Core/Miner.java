@@ -13,7 +13,7 @@ public class Miner implements Runnable {
     private Thread minerThread;
     private PublicKey minerKey;
     private ArrayList<Transaction> uncTx;
-    private int difficulty;
+
 
     private boolean shouldMine = false;
 
@@ -23,7 +23,7 @@ public class Miner implements Runnable {
         this.block = block;
         this.minerKey = minerKey;
         this.uncTx = uncTx;
-        this.difficulty = difficulty;
+
     }
 
     private Miner(){
@@ -61,33 +61,38 @@ public class Miner implements Runnable {
     @Override
     public void run() {
         while (!shouldMine && !minerThread.isInterrupted()) {
-        block.addCoinbaseTx(25L, minerKey);
-        uncTx = Node.getInstance().getAllTransactions();
-        if (!(uncTx.size() ==0)) {
-            for (Transaction tx : uncTx) {
-                if(tx.processTransaction()){
-                    block.addUnconfTx(tx);
-                    uncTx.remove(tx);
-                } else {
-                    uncTx.remove(tx);
-                    System.out.println("Transaction is not valid !");
+            block = new Block(Blockchain.getBlockchain().getLastBlock().getHash());
+            block.addCoinbaseTx(25L, minerKey);
+            uncTx = Node.getInstance().getAllTransactions();
+            block.setDifficulty(Blockchain.getBlockchain().getLastBlock().getDifficulty()+1);
+            block.setHight(Blockchain.getBlockchain().getLastBlock().getHight()+1);
+            if (!(uncTx.size() == 0)) {
+                for (Transaction tx : uncTx) {
+                    if (tx.processTransaction()) {
+                        block.addUnconfTx(tx);
+                        uncTx.remove(tx);
+                    } else {
+                        uncTx.remove(tx);
+                        System.out.println("Transaction is not valid !");
+                    }
+
                 }
-
+                System.out.println("Start mining block " + block.getHight());
+            } else {
+                System.out.println("Start mining block " + block.getHight() + " with only coinbase transaction");
             }
-        } else {
-            System.out.println("Start mining block " + block.getHight() + " with only coinbase transaction");
-        }
 
 
 
-            if (block.mineBlock(difficulty)) {
-                    minerThread.interrupt();
-                    shouldMine = false;
+            Boolean isMined = block.mineBlock();
+
+            if (isMined){
+                Blockchain.getBlockchain().addBlock(block);
+                System.out.println("Block " + block.getHight() + " was added to chain");
             }
+
+
         }
-
-
-
 
     }
 
@@ -96,6 +101,7 @@ public class Miner implements Runnable {
     public void stopMining(){
         minerThread.interrupt();
         shouldMine = false;
+        System.out.println("Mining was stopped.");
     }
 
     public static void main(String[] args) {
