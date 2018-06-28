@@ -39,18 +39,11 @@ public class TestRunner {
 //
 //        Peer p = new Peer(socket);
 
-//        Node testNode = Node.getInstance();
-//        testNode.myServer.start();
-//        Thread.sleep(10000);
-//        Wallet w = new Wallet();
-//        Transaction tx  = new Transaction(w.publicKey, 60L);
-//        testNode.addTransactionToPool(tx);
-        Node node = Node.getInstance();
-        node.startMining();
-        Thread.sleep(4000);
-        node.stopMining();
-        Storage.getInstance().commitAll();
-        Storage.getInstance().closeAll();
+        Node testNode = Node.getInstance();
+//        Thread.sleep(5000);
+//        testNode.myServer.stop();
+
+
 
 
 

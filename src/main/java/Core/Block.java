@@ -109,7 +109,10 @@ public class Block implements Serializable {
 
     public static void main(String[] args) {
         Block test = Block.getGenesisBlock();
-        System.out.println(StringUtil.getJson(test));
+        Wallet w = new Wallet();
+        test.addCoinbaseTx(100L, w.getPublicKey());
+        Transaction tx = test.getTransactions().get(0);
+        System.out.println(StringUtil.getJson(tx));
     }
 
 }

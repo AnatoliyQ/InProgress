@@ -8,6 +8,7 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class Transaction implements Serializable{
+    private String type;
     private   String transactionId; //Contains a hash of transaction*
     private PublicKey sender; //Senders address/public key.
     private PublicKey reciepient; //Recipients address/public key.
@@ -25,6 +26,7 @@ public class Transaction implements Serializable{
         this.reciepient = to;
         this.value = value;
         this.inputs = inputs;
+        this.type = "Regular";
     }
 
 
@@ -36,8 +38,7 @@ public class Transaction implements Serializable{
         this.outputs.add(txOut);
         this.signature = StringUtil.stringToByteArray("CoinBase");
         this.transactionId = StringUtil.applySha256(reciepient + Float.toString(value) + StringUtil.getJson(txOut));
-
-
+        this.type = "Coinbase";
     }
 
     public boolean processTransaction() {
@@ -91,6 +92,10 @@ public class Transaction implements Serializable{
         return transactionId;
     }
 
+    public String getType(){
+        return type;
+    }
+
     public PublicKey getAddressSender(){
         return sender;
     }
@@ -100,13 +105,7 @@ public class Transaction implements Serializable{
     }
 
     public static void main(String[] args) {
-        Wallet test = new Wallet();
-        //Transaction tx = new Transaction(null, test.publicKey, 20l, null);
-        Transaction tx = new Transaction(test.getPublicKey(), 25l);
 
-
-        System.out.println(StringUtil.getJson(tx));
-        System.out.println(tx.outputs);
     }
 
 

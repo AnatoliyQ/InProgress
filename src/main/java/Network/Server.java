@@ -1,6 +1,7 @@
 package Network;
 
 
+import Core.Block;
 import Network.Commands.Ping;
 
 
@@ -22,10 +23,11 @@ public class Server {
     private int port;
     private ArrayList<Peer> peers;
     private ArrayList<ObjectOutputStream> connected;
-    private ObjectOutputStream outputStream;
-    private ObjectInputStream inputStream;
+    private volatile ObjectOutputStream outputStream;
+    private volatile ObjectInputStream inputStream;
     public Thread serverThread;
-    private boolean runningServer;
+    private volatile boolean runningServer;
+    private Thread readThread;
 
     private ServerSocket server;
     private Socket socket = null;
@@ -62,10 +64,12 @@ public class Server {
         try {
             outputStream.close();
             inputStream.close();
+            readThread.interrupt();
             serverThread.interrupt();
             server.close();
             socket.close();
         } catch (NullPointerException n) {
+            n.printStackTrace();
             System.out.println("Null pointer when closing server socket");
         }
         System.out.println("Server Stopped");
@@ -74,10 +78,11 @@ public class Server {
     public void listen() throws IOException {
         System.out.println("Server starting...");
         server = new ServerSocket(this.port);
-        System.out.println("Server started on port " + this.port);
+        System.out.println("Server started on port " + this.port + "  runningServer = "+runningServer);
 
         while (runningServer) {
             try {
+                System.out.println("wait accept");
                 socket = server.accept();
 
 
@@ -87,21 +92,24 @@ public class Server {
                 System.out.println("Passed Accept");
                 System.out.println("Connection received from: " + socket.toString());
 
-                pingSender();
+//                pingSender();
 
-                Thread readThread = new Thread(() -> {
-                    while (runningServer) {
-                        Object obj = null;
+                readThread = new Thread(() -> {
+                    pingSender();
+                    while (true) {
+                        Object obj;
                         try {
                             obj = inputStream.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            e.printStackTrace();
-                        }
 
-                        if (obj instanceof Ping) {
-                            inPacks++;
-                            System.out.println("Server reciev ping " + inPacks);
-                        }
+                            if (obj instanceof Ping) {
+                                inPacks++;
+                                System.out.println("Server reciev ping " + inPacks);
+                            } else if (obj instanceof Block) {
+                                System.out.println("Block received");
+                            }
+                        } catch (IOException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
 
 
                     }
@@ -135,9 +143,10 @@ public class Server {
                 System.out.println("packages not clash");
                 timer.stop();
                 try {
-                    socket.close();
+                    Thread.currentThread().interrupt();
                     outputStream.close();
                     inputStream.close();
+                    socket.close();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

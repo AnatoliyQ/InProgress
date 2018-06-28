@@ -1,5 +1,6 @@
 package Network;
 
+import Core.Block;
 import Core.Transaction;
 import Network.Commands.Ping;
 
@@ -53,7 +54,6 @@ public class Peer {
     public void listen() throws IOException {
         Object command;
         while(true){
-            //System.out.println("Listening for commands");
             try{
                 command = in.readObject();
                 if (command instanceof Ping){
@@ -62,10 +62,16 @@ public class Peer {
                     out.flush();
                 }  else if (command instanceof Transaction){
                     System.out.println("TX received by client");
+                } else if(command instanceof Block){
+                    System.out.println("Blcok received");
+                    Block block = (Block) command;
+                    Node.getInstance().addBlock(block);
                 }
 
             } catch (SocketTimeoutException | ClassNotFoundException e) {
                 e.printStackTrace();
+            } catch (EOFException eofe) {
+                peerThreadListen.interrupt();
             }
 
 

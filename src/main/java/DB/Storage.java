@@ -125,6 +125,7 @@ public class Storage {
         accountDB.commit();
         transactionOutputDB.commit();
         blockDB.commit();
+        System.out.println("Commit in DB -success");
 
     }
 
@@ -132,6 +133,7 @@ public class Storage {
         accountDB.close();
         transactionOutputDB.close();
         blockDB.close();
+        System.out.println("DB connections was closed");
 
     }
 

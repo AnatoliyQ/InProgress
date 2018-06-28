@@ -53,7 +53,7 @@ public class Miner implements Runnable {
 //        uncTx = Node.getInstance().getAllTransactions();
 
 
-        minerThread = new Thread(this);
+        minerThread = new Thread(this, "Mining Thread");
         minerThread.start();
     }
 

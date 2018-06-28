@@ -3,6 +3,8 @@ package Core;
 
 import DB.Storage;
 import DB.StorageMaps;
+import Network.Node;
+import Util.BlockValitator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,9 +55,14 @@ public class Blockchain {
     public void synchronizeBloks(){}
 
     public void addBlock(Block block){
-        chain.add(block);
-        Storage.getInstance().putToDB(BLOCKS, block, null);
-
+        Block blockInChain = null;
+        if(BlockValitator.isValid(block)) {
+           if(!chain.contains(block)){
+               chain.add(block);
+               Storage.getInstance().putToDB(BLOCKS, block, null);
+               Node.getInstance().myServer.psBroadcast(block);
+           }
+        }
     }
 
 
