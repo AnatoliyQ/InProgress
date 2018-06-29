@@ -47,7 +47,7 @@ public class ClientHandler implements Runnable {
                 recivedObject = inputStream.readObject();
                 if (recivedObject instanceof Ping) {
                     inPacks++;
-                    System.out.println("Server reciev ping " + inPacks);
+                    System.out.println("Server reciev ping " + inPacks + client.getRemoteSocketAddress().toString());
                 } else if (recivedObject instanceof Block) {
                     System.out.println("Block received");
                     Block block = (Block) recivedObject;

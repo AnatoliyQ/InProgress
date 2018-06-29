@@ -61,7 +61,7 @@ public class Peer {
             try{
                 command = in.readObject();
                 if (command instanceof Ping){
-                    System.out.println("Ping received");
+                    System.out.println("Ping received" + socket.getRemoteSocketAddress().toString());
                     out.writeObject(new Ping());
                     out.flush();
                 }  else if (command instanceof Transaction){
