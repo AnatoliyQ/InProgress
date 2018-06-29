@@ -6,57 +6,55 @@ import Core.Transaction;
 import Network.Commands.Ping;
 import Network.Commands.Test;
 
-import java.io.*;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+public class PeerHanler implements Runnable {
+    private static Socket peer;
+    private ObjectOutputStream outputStream;
+    private ObjectInputStream inputStream;
+    private boolean runner;
 
-public class Peer {
-    private Thread peerThreadListen;
-    public Socket socket;
-    public ObjectOutputStream out;
-    public ObjectInputStream in;
-    public boolean runner;
+    public PeerHanler(Socket peer) {
+        PeerHanler.peer = peer;
+    }
 
-    public Peer(Socket socket)  {
-        this.socket = socket;
+    @Override
+    public void run() {
+        runner = true;
         try {
-            in = new ObjectInputStream(this.socket.getInputStream());
-            out = new ObjectOutputStream(this.socket.getOutputStream());
+            outputStream = new ObjectOutputStream(peer.getOutputStream());
+            inputStream = new ObjectInputStream(peer.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        peerThreadListen = new Thread(() -> {
+        while (runner){
             try {
-                runner = true;
                 listen();
-                System.out.println( "Closing connection to " + socket.getInetAddress() + ":" + socket.getPort());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
-        peerThreadListen.start();
-
+        }
 
     }
 
-
-
-
     public void listen() throws IOException {
         Object command;
-        while(runner){
             try{
-                command = in.readObject();
+                command = inputStream.readObject();
                 if (command instanceof Ping){
-                    System.out.println("Ping received" + socket.getRemoteSocketAddress().toString());
-                    out.writeObject(new Ping());
-                    out.flush();
+                    System.out.println("Ping received" + peer.getRemoteSocketAddress().toString());
+                    outputStream.writeObject(new Ping());
+                    outputStream.flush();
                 }  else if (command instanceof Transaction){
                     System.out.println("TX received by client");
                 } else if(command instanceof Block){
-                    System.out.println("Blcok received");
+                    System.out.println("Block received");
                     Block block = (Block) command;
                     Blockchain.getBlockchain().addBlock(block);
                 } else if (command instanceof Test){
@@ -66,22 +64,30 @@ public class Peer {
             } catch (SocketTimeoutException | ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (EOFException eofe) {
-                peerThreadListen.interrupt();
+                Thread.currentThread().interrupt();
             }
 
 
         }
-    }
 
     public void stop(){
         runner = false;
-        peerThreadListen.interrupt();
+        Thread.currentThread().interrupt();
         System.out.println("Stopping peer");
+    }
+
+    public void send(Object object){
+        try {
+            outputStream.writeObject(object);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public String toString() {
-        return String.format("[%s:%s]", socket.getInetAddress(), socket.getPort());
+        return String.format("[%s:%s]", peer.getInetAddress(), peer.getPort());
     }
-
 }

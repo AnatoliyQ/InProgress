@@ -2,6 +2,9 @@ package Client.Commands;
 
 import Client.Commander;
 import Network.Node;
+import Util.Address;
+import Util.AddressFormatException;
+import Util.StringUtil;
 
 import java.util.Arrays;
 
@@ -10,13 +13,13 @@ public class WalletCommand implements Command {
     public String getHelp() {
         return "cmd: wallet \n" +
                 "- usage: wallet param \n"+
-                "- param: 'getaddress', 'getbalance', 'info', 'help' \n";
+                "- param: 'getaddress', 'getbalance', 'sendtoaddress', 'info', 'help' \n";
 
     }
 
     @Override
     public String[] getParams() {
-        return new String[]{ "help", "getaddress", "getbalance", "info" };
+        return new String[]{ "help", "getaddress", "getbalance", "sendtoaddress", "info" };
     }
 
     @Override
@@ -41,6 +44,15 @@ public class WalletCommand implements Command {
                 break;
             case "help":
                 Commander.CommanderPrint(getHelp());
+                break;
+            case "sendtoaddress":
+                String recipient = args[1];
+                String value = args[2];
+                try {
+                    Node.getInstance().myWallet.sendFunds(Address.getKeyFromAddress(recipient), Float.parseFloat(value) );
+                } catch (AddressFormatException e) {
+                    Commander.CommanderPrint("Error! Incorrect address.");
+                }
                 break;
         }
     }

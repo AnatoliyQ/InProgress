@@ -67,13 +67,6 @@ public class Block implements Serializable {
         return true;
     }
 
-    public void calculateMerkleRoot (){
-        merkleRoot = StringUtil.getMerkleRoot(transactions);
-    }
-
-    public void setHash(String hash){
-        this.hash = hash;
-    }
 
     public String getHash(){
         return hash;
@@ -103,16 +96,6 @@ public class Block implements Serializable {
         genesisBlock.difficulty = 1;
 
         return genesisBlock;
-    }
-
-
-
-    public static void main(String[] args) {
-        Block test = Block.getGenesisBlock();
-        Wallet w = new Wallet();
-        test.addCoinbaseTx(100L, w.getPublicKey());
-        Transaction tx = test.getTransactions().get(0);
-        System.out.println(StringUtil.getJson(tx));
     }
 
 }

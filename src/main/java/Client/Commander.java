@@ -2,7 +2,11 @@ package Client;
 
 import Client.Commands.Command;
 import Client.Commands.HelpCommand;
+import Client.Commands.MiningCommand;
 import Client.Commands.WalletCommand;
+import Core.Wallet;
+import Network.Node;
+import Util.Address;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,6 +34,7 @@ public class Commander {
         cmds = new HashMap<>();
         cmds.put("help", new HelpCommand());
         cmds.put("wallet", new WalletCommand());
+        cmds.put("mining", new MiningCommand());
         scanner = new Scanner(System.in);
     }
 
@@ -54,6 +59,7 @@ public class Commander {
 
             String input = (String) scanner.nextLine();
             if(input.equals("quit") || input.equals("exit")){
+                exit();
                 break;
             }
 
@@ -72,6 +78,12 @@ public class Commander {
             }
 
 
+        }
+    }
+
+    private void exit (){
+        if(Node.checkNodeStatus()){
+            Node.getInstance().stopNetwork();
         }
     }
 

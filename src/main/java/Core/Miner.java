@@ -1,11 +1,9 @@
 package Core;
 
 import Network.Node;
-import Util.StringUtil;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Miner implements Runnable {
 
@@ -13,21 +11,16 @@ public class Miner implements Runnable {
     private Thread minerThread;
     private PublicKey minerKey;
     private ArrayList<Transaction> uncTx;
+    Blockchain blockchain;
 
 
     private boolean shouldMine = false;
 
     private static Miner instance;
 
-    public Miner(Block block, PublicKey minerKey, ArrayList<Transaction> uncTx, int difficulty){
-        this.block = block;
-        this.minerKey = minerKey;
-        this.uncTx = uncTx;
-
-    }
 
     private Miner(){
-
+        blockchain = Blockchain.getBlockchain();
     }
 
     public static Miner getInstance(){
@@ -43,16 +36,9 @@ public class Miner implements Runnable {
 
     }
 
-//    public Block startMiner() {
-//        minerThread = new Thread(this);
-//        minerThread.start();
-//        return block;
-//    }
 
     public void startMiner (){
-//        uncTx = Node.getInstance().getAllTransactions();
-
-
+        shouldMine = true;
         minerThread = new Thread(this, "Mining Thread");
         minerThread.start();
     }
@@ -60,12 +46,16 @@ public class Miner implements Runnable {
 
     @Override
     public void run() {
-        while (!shouldMine && !minerThread.isInterrupted()) {
-            block = new Block(Blockchain.getBlockchain().getLastBlock().getHash());
+        while (shouldMine && !minerThread.isInterrupted()) {
+            Block lastBlock;
+            synchronized (blockchain.monitor) {
+                lastBlock = blockchain.getLastBlock();
+            }
+            block = new Block(lastBlock.getHash());
             block.addCoinbaseTx(25L, minerKey);
             uncTx = Node.getInstance().getAllTransactions();
-            block.setDifficulty(Blockchain.getBlockchain().getLastBlock().getDifficulty()+1);
-            block.setHight(Blockchain.getBlockchain().getLastBlock().getHight()+1);
+            block.setDifficulty(lastBlock.getDifficulty()+1);
+            block.setHight(lastBlock.getHight()+1);
             if (!(uncTx.size() == 0)) {
                 for (Transaction tx : uncTx) {
                     if (tx.processTransaction()) {
@@ -77,6 +67,7 @@ public class Miner implements Runnable {
                     }
 
                 }
+
                 System.out.println("Start mining block " + block.getHight());
             } else {
                 System.out.println("Start mining block " + block.getHight() + " with only coinbase transaction");
@@ -87,8 +78,10 @@ public class Miner implements Runnable {
             Boolean isMined = block.mineBlock();
 
             if (isMined){
-                Blockchain.getBlockchain().addBlock(block);
-                System.out.println("Block " + block.getHight() + " was added to chain");
+                synchronized (blockchain.monitor) {
+                    Blockchain.getBlockchain().addBlock(block);
+                    System.out.println("Block " + block.getHight() + " was added to chain");
+                }
             }
 
 
@@ -96,16 +89,10 @@ public class Miner implements Runnable {
 
     }
 
-
-
     public void stopMining(){
         minerThread.interrupt();
         shouldMine = false;
         System.out.println("Mining was stopped.");
     }
 
-    public static void main(String[] args) {
-
-
-    }
 }

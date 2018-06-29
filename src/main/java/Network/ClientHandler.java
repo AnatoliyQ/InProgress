@@ -26,8 +26,6 @@ public class ClientHandler implements Runnable {
 
     public ClientHandler(Socket client) {
         ClientHandler.client = client;
-
-
     }
 
     @Override
@@ -49,9 +47,11 @@ public class ClientHandler implements Runnable {
                     inPacks++;
                     System.out.println("Server reciev ping " + inPacks + client.getRemoteSocketAddress().toString());
                 } else if (recivedObject instanceof Block) {
-                    System.out.println("Block received");
+                    System.out.println("Block received from sever");
                     Block block = (Block) recivedObject;
-                    Blockchain.getBlockchain().addBlock(block);
+                    synchronized (Blockchain.getBlockchain().monitor) {
+                        Blockchain.getBlockchain().addBlock(block);
+                    }
                 } else if(recivedObject instanceof GetHight){
                     Height currentHight = new Height(Blockchain.getBlockchain().getLastBlock().getHight());
                     outputStream.writeObject(currentHight);
@@ -59,9 +59,6 @@ public class ClientHandler implements Runnable {
                 } else if(recivedObject instanceof Test) {
                     System.out.println("Test object come to server");
                 }
-//                }else {
-//                    System.out.println(recivedObject.getClass());
-//                }
 
             }
 

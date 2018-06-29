@@ -4,7 +4,6 @@ import DB.Storage;
 import Network.Node;
 import Util.Address;
 
-
 import java.security.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,7 +85,9 @@ public class  Wallet {
     }
 
     public void addTxOut (TransactionOutput txOut){
+        System.out.println("Tx added" + txOut.id);
         UTXO.put(txOut.id, txOut);
+        Storage.getInstance().putToDB(TRANSACTIONOUTPUT, txOut.id, txOut);
     }
 
     public PublicKey getPublicKey(){
@@ -98,7 +99,5 @@ public class  Wallet {
     }
 
 
-    public static void main(String[] args) throws Exception {
 
-    }
 }

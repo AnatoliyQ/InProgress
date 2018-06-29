@@ -73,6 +73,7 @@ public class StringUtil {
     }
 
     public static PublicKey publicKeyFromByte (byte[] publicKeyBytes) throws InvalidKeySpecException, NoSuchProviderException, NoSuchAlgorithmException {
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         KeyFactory kf = KeyFactory.getInstance("ECDSA","BC");
         return kf.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
     }

@@ -53,7 +53,6 @@ public class Transaction implements Serializable{
         outputs.add(new TransactionOutput( this.reciepient, value,transactionId)); //send value to recipient
         outputs.add(new TransactionOutput( this.sender, leftOver,transactionId)); //send the left over 'change' back to sender
 
-
         return true;
     }
 

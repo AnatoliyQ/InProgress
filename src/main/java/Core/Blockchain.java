@@ -2,26 +2,26 @@ package Core;
 
 
 import DB.Storage;
-import DB.StorageMaps;
 import Network.Node;
 import Util.BlockValitator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import static DB.StorageMaps.BLOCKS;
 
+
 public class Blockchain {
     private static Blockchain blockchain;
+    public final Object monitor;
 
     private ArrayList<Block> chain;
 
     private Blockchain (){
-        chain = new ArrayList<>();
+        monitor = new Object();
+        chain = new ArrayList<Block>();
         initializeChain();
         synchronizeChain();
 
-//        chain.addAll()
     }
 
     public static Blockchain getBlockchain (){
@@ -32,17 +32,19 @@ public class Blockchain {
     }
 
     public Block getLastBlock (){
-        return chain.get(chain.size() - 1);
+        synchronized (monitor) {
+            return chain.get(chain.size() - 1);
+        }
     }
 
     private void initializeChain(){
         ArrayList<Block> blockchain = new ArrayList<>();
-        blockchain.addAll((ArrayList<Block>)Storage.getInstance().getFromDB(BLOCKS));
-        if(blockchain.size()>0){
-            chain = blockchain;
+        blockchain.addAll((ArrayList<Block>) Storage.getInstance().getFromDB(BLOCKS));
+        if (blockchain.size() > 0) {
+            chain.addAll(blockchain);
         } else {
             blockchain.add(Block.getGenesisBlock());
-            chain = blockchain;
+            chain.addAll(blockchain);
         }
         System.out.println("Blocks loaded from DB");
     }
@@ -52,16 +54,16 @@ public class Blockchain {
     }
 
 
-    public void synchronizeBloks(){}
-
     public void addBlock(Block block){
-        if(BlockValitator.isValid(block)) {
-           if(!chain.contains(block)){
-               checkIsTXforMe(block);
-               chain.add(block);
-               Storage.getInstance().putToDB(BLOCKS, block, null);
-               Node.getInstance().myServer.psBroadcast(block);
-           }
+        synchronized (monitor) {
+            if (BlockValitator.isValid(block)) {
+                if (!chain.contains(block)) {
+                    checkIsTXforMe(block);
+                    chain.add(block);
+                    Storage.getInstance().putToDB(BLOCKS, block, null);
+                    Node.getInstance().myServer.psBroadcast(block);
+                }
+            }
         }
     }
 
@@ -72,6 +74,7 @@ public class Blockchain {
             for (TransactionOutput txOut:outputs) {
                 if (txOut.isMine(Node.getInstance().minerKey)){
                     Node.getInstance().addMyTXout(txOut);
+                    System.out.println("Tx added to miner " + txOut.getValue());
                 }
             }
         }

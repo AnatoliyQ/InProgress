@@ -12,7 +12,6 @@ import org.mapdb.Serializer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static DB.StorageMaps.ACCOUNT;
 import static DB.StorageMaps.BLOCKS;
@@ -137,13 +136,5 @@ public class Storage {
 
     }
 
-
-
-
-
-
-    public static void main(String[] args) throws AddressFormatException {
-
-    }
 
 }

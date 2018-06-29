@@ -4,6 +4,7 @@ import Util.StringUtil;
 
 import java.io.Serializable;
 import java.security.PublicKey;
+import java.util.Date;
 
 public class TransactionOutput implements Serializable {
     public String id;
@@ -11,12 +12,15 @@ public class TransactionOutput implements Serializable {
     public String addressReciepient;
     private float value; //the amount of coins they own
     public String parentTransactionId; //the id of the transaction this output was created in
+    private long timeStamp;
 
     public TransactionOutput(PublicKey reciepient, float value, String parentTransactionId) {
         this.reciepient = reciepient;
         this.value = value;
         this.parentTransactionId = parentTransactionId;
-        this.id = StringUtil.applySha256(StringUtil.getStringFromKey(reciepient)+Float.toString(value)+parentTransactionId);
+        this.timeStamp = new Date().getTime();
+        this.id = StringUtil.applySha256(StringUtil.getStringFromKey(reciepient)+Float.toString(value)+parentTransactionId+Long.toString(timeStamp));
+
     }
 
 

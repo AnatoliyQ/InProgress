@@ -2,7 +2,6 @@ package Util;
 
 import java.io.UnsupportedEncodingException;
 
-import static java.util.Arrays.copyOfRange;
 
 public class Base58 {
     public static final char[] ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();

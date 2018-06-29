@@ -16,14 +16,12 @@ public class Node {
     private static Node NODE;
     private Miner myMiner;
     public final Wallet myWallet;
-    private Block currentBlock;
-    private int blockNumber;
-    private int COINBASE;
     public Server myServer;
-    public Peer myPeer;
+    public PeerHanler myPeer;
     private final int port = 12345;
     public Blockchain blockchain;
     public ArrayList<Peer> peers;
+    private boolean mining;
 
 
     private Node(){
@@ -49,13 +47,6 @@ public class Node {
         if(NODE ==null){
             NODE = new Node();
         }
-//        NODE.myServer.start();
-//        try {
-//            NODE.connectPeer();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
         return NODE;
     }
 
@@ -68,12 +59,18 @@ public class Node {
     }
 
     public void startMining (){
-
+        mining = true;
         myMiner.startMiner();
     }
 
     public void stopMining(){
+        if(mining){
+        mining = false;
         myMiner.stopMining();
+        } else {
+            System.out.println("Mining not started");
+        }
+
     }
 
     public ArrayList<Transaction> getAllTransactions (){
@@ -84,13 +81,15 @@ public class Node {
     }
 
     private void connectPeer() throws IOException {
-//        String host = "123.78.96.784";
+//        String host = "192.168.1.126";
         String host = "localhost";
         int port = 12345;
         if (NetworkUtil.isReachableByPing(host)){
             Socket fSocket = new Socket(host, port);
-            myPeer = new Peer(fSocket);
-            peers.add(myPeer);
+
+            myPeer = new PeerHanler(fSocket);
+            Thread peerThread = new Thread(myPeer);
+            peerThread.start();
 
         } else {
             System.out.println("Host is not available");
@@ -103,23 +102,22 @@ public class Node {
         myWallet.addTxOut(txOut);
     }
 
-
-
-
-
-    public static void main(String[] args) throws IOException {
-        Server test = new Server(12345);
-        test.start();
-//        Boolean check = Node.isReachableByPing("123.78.96.784");
-//        System.out.println(check);
-
-
+    public static boolean checkNodeStatus (){
+        return NODE != null;
     }
 
-
-
-
-
-
+    public void stopNetwork(){
+        try {
+            if (mining) {
+                stopMining();
+            }
+            myServer.stop();
+            if (myPeer!=null) {
+                myPeer.stop();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
