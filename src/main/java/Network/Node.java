@@ -2,18 +2,12 @@ package Network;
 
 import Core.*;
 import Util.NetworkUtil;
-import Util.StringUtil;
-import com.sun.org.apache.xpath.internal.SourceTree;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Node {
@@ -21,12 +15,12 @@ public class Node {
     public PublicKey minerKey;
     private static Node NODE;
     private Miner myMiner;
-    private final Wallet myWallet;
+    public final Wallet myWallet;
     private Block currentBlock;
     private int blockNumber;
     private int COINBASE;
     public Server myServer;
-    private Peer myPeer;
+    public Peer myPeer;
     private final int port = 12345;
     public Blockchain blockchain;
     public ArrayList<Peer> peers;
@@ -90,8 +84,8 @@ public class Node {
     }
 
     private void connectPeer() throws IOException {
-        String host = "123.78.96.784";
-//        String host = "localhost";
+//        String host = "123.78.96.784";
+        String host = "localhost";
         int port = 12345;
         if (NetworkUtil.isReachableByPing(host)){
             Socket fSocket = new Socket(host, port);

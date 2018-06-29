@@ -4,6 +4,7 @@ import Core.Block;
 import Core.Blockchain;
 import Core.Transaction;
 import Network.Commands.Ping;
+import Network.Commands.Test;
 
 import java.io.*;
 import java.net.Socket;
@@ -16,6 +17,7 @@ public class Peer {
     public Socket socket;
     public ObjectOutputStream out;
     public ObjectInputStream in;
+    public boolean runner;
 
     public Peer(Socket socket)  {
         this.socket = socket;
@@ -28,6 +30,7 @@ public class Peer {
 
         peerThreadListen = new Thread(() -> {
             try {
+                runner = true;
                 listen();
                 System.out.println( "Closing connection to " + socket.getInetAddress() + ":" + socket.getPort());
             } catch (IOException e) {
@@ -54,7 +57,7 @@ public class Peer {
 
     public void listen() throws IOException {
         Object command;
-        while(true){
+        while(runner){
             try{
                 command = in.readObject();
                 if (command instanceof Ping){
@@ -67,6 +70,8 @@ public class Peer {
                     System.out.println("Blcok received");
                     Block block = (Block) command;
                     Blockchain.getBlockchain().addBlock(block);
+                } else if (command instanceof Test){
+                    System.out.println("New network test passed");
                 }
 
             } catch (SocketTimeoutException | ClassNotFoundException e) {
@@ -77,6 +82,12 @@ public class Peer {
 
 
         }
+    }
+
+    public void stop(){
+        runner = false;
+        peerThreadListen.interrupt();
+        System.out.println("Stopping peer");
     }
 
     @Override

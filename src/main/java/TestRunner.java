@@ -1,6 +1,7 @@
 import Core.*;
 import DB.Storage;
 import DB.StorageMaps;
+import Network.Commands.Test;
 import Network.Node;
 import Network.Peer;
 import Network.Server;
@@ -40,12 +41,11 @@ public class TestRunner {
 //        Peer p = new Peer(socket);
 
         Node testNode = Node.getInstance();
-        testNode.startMining();
-//        Thread.sleep(5000);
-//        testNode.myServer.stop();
+        Thread.sleep(3000);
+       testNode.myServer.stop();
+       testNode.myPeer.stop();
 
-
-
+//        Thread.sleep(3000);
 
 
     }
