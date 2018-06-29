@@ -5,7 +5,8 @@ import Client.Commander;
 public class HelpCommand implements Command{
     @Override
     public String getHelp() {
-        return "Displays help for all known commands. \n";
+        return "cmd: help \n"+
+                "Displays help for all known commands. \n";
     }
 
     @Override

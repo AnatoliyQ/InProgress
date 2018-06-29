@@ -41,9 +41,9 @@ public class TestRunner {
 //        Peer p = new Peer(socket);
 
         Node testNode = Node.getInstance();
-        Thread.sleep(3000);
-       testNode.myServer.stop();
-       testNode.myPeer.stop();
+//        Thread.sleep(3000);
+//       testNode.myServer.stop();
+//       testNode.myPeer.stop();
 
 //        Thread.sleep(3000);
 
